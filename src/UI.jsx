@@ -62,7 +62,13 @@ class Name extends Component {
             <TextInput
                 value={this.state.value}
                 onChange={value => this.setState({value})}
-                onSubmit={value => this.props.onSubmit(value)}
+                onSubmit={value => {
+                    if (value.trim() === '') {
+                        console.error("ERROR: Name cannot be empty")
+                    } else {
+                        this.props.onSubmit(value.trim())
+                    }
+                }}
             />
             <span>.officeroo.io</span>
         </span>
@@ -74,7 +80,13 @@ class Offices extends Component {
         return <span>
             <div>Enter offices one per line. ENTER for new line. DOUBLE ENTER to submit</div>
             <TextArea
-                onSubmit={list => this.props.onSubmit(list)}
+                onSubmit={list => {
+                    if (list.length === 0) {
+                        console.error("ERROR: Need at least one office")
+                    } else {
+                        this.props.onSubmit(list)
+                    }
+                }}
             />
         </span>
     }
@@ -95,7 +107,13 @@ class Activities extends Component {
             <div>Select activities (select with SPACE, submit with ENTER)</div>
             <span>
                 <List
-                    onSubmit={list => this.props.onSubmit(list)}
+                    onSubmit={list => {
+                        if (list.length === 0) {
+                            console.error("ERROR: Must have at least one activity")
+                        } else {
+                            this.props.onSubmit(list)
+                        }
+                    }}
                 >
                     {activities}
                 </List>
