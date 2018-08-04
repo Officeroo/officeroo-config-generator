@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const { h, render, Component, Color } = require('ink');
 
 const TextInput = require('ink-text-input');
@@ -148,7 +151,7 @@ class Result extends Component {
             <span>
                 <ConfirmInput
                     checked
-                    onSubmit={(v) => this.props.onSubmit()}
+                    onSubmit={(v) => this.props.onSubmit(this.props.value)}
                 />
             </span>
         </span>
@@ -170,8 +173,8 @@ class UI extends Component {
             case 2: return <Activities onSubmit={value => this.saveAndContinue('enabled_activities', value)} />
             case 3: return <AllowedEmailDomains onSubmit={value => this.saveAndContinue('allowed_email_domains', value)} />
             case 4: return <HasLogo onSubmit={value => this.saveAndContinue('has_logo', value)} />
-            case 5: return <Result value={this.finish(this.json)} onSubmit={() => this.advanceNode()} />
-            default: process.exit(0)
+            case 5: return <Result value={this.finish(this.json)} onSubmit={(value) => this.writeAndExit(value)} />
+            default: return <span></span>
         }
     }
 
@@ -207,6 +210,28 @@ class UI extends Component {
                 [data.name]: ret,
             }
         }
+    }
+
+    writeAndExit(value) {
+        this.advanceNode();
+
+        const appName = Object.keys(value.apps)[0]
+        const dir = path.join(__dirname, '..', 'output')
+        const file = `${appName}.json`
+        const location = `${dir}/${file}`
+
+
+        console.log(`Writing file to ${location}`)
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+        fs.writeFile(location, JSON.stringify(value, null, 2), function(err) {
+            if(err) {
+                return console.log(err);
+            }
+            console.log("The file was saved!");
+            process.exit(0);
+        });
     }
 }
 
