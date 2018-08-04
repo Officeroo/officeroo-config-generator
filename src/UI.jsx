@@ -192,7 +192,10 @@ class UI extends Component {
             enabled_activities: {},
             allowed_email_domains: {},
             has_logo: data.has_logo,
-            superuser: data.superuser,
+            superuser: {
+                email: "support@officeroo.io",
+                password: randomString(),
+            },
         }
 
         data.offices.forEach(key => ret.offices[key] = {})
@@ -205,6 +208,16 @@ class UI extends Component {
             }
         }
     }
+}
+
+function randomString() {
+    length = 32;
+    chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    var result = '';
+    for (var i = length; i > 0; --i) {
+        result += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return result;
 }
 
 module.exports = UI;
