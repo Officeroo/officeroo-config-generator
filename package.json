@@ -2,9 +2,9 @@
   "name": "officeroo-config-generator",
   "version": "0.0.1",
   "description": "Config Generator for Officeroo",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/main.js"
   },
   "repository": {
     "type": "git",

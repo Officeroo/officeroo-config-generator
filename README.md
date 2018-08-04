@@ -1,3 +1,8 @@
-# Boilerplate
+# Config file generator
 
-This is a repository containing boilerplate code to be copy pasted
+## How to use
+
+```bash
+npm install
+npm start
+```
