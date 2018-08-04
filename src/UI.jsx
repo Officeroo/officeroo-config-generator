@@ -1,8 +1,9 @@
 const { h, render, Component, Color } = require('ink');
 
-const Foo = require('import-jsx')('./Foo.jsx')
 const TextInput = require('ink-text-input');
-const {List, ListItem} = require('ink-checkbox-list');
+const { List, ListItem } = require('ink-checkbox-list');
+const QuickSearch = require('ink-quicksearch');
+const ConfirmInput = require('ink-confirm-input');
 
 class Name extends Component {
     constructor(props) {
@@ -74,16 +75,38 @@ class AllowedEmailDomains extends Component {
 
 class HasLogo extends Component {
     render() {
-        return <div></div>
+        return <span>
+            <div>Has Logo?</div>
+            <span>
+                <QuickSearch
+                    items={[
+                        {value: false, label: 'No'},
+                        {value: true, label: 'Yes'},
+                    ]}
+                    onSelect={d => this.props.onSubmit(d.value)}
+                />
+            </span>
+        </span>
     }
 
 }
 
 class Result extends Component {
     render() {
-        return <div>
-
-        </div>
+        return <span>
+            <div>
+                {JSON.stringify(this.props.value, null, 2)}
+            </div>
+            <span>
+                Press ENTER if Happy
+            </span>
+            <span>
+                <ConfirmInput
+                    checked
+                    onSubmit={(v) => this.props.onSubmit()}
+                />
+            </span>
+        </span>
     }
 }
 
@@ -93,7 +116,7 @@ class UI extends Component {
         super();
 
         this.state = {
-            node: 0
+            node: 5
         };
         this.json = {}
     }
@@ -135,21 +158,21 @@ class UI extends Component {
             case 4: {
                 return <HasLogo
                     onSubmit={value => {
-                        this.json;
+                        this.json.has_logo = value;
                         this.advanceNode();
                     }}
                 />
             }
             case 5: {
                 return <Result
+                    value={this.json}
                     onSubmit={value => {
-                        this.json;
                         this.advanceNode();
                     }}
                 />
             }
             default: {
-                return <div>Done</div>
+                process.exit(0)
             }
         }
     }
@@ -158,7 +181,6 @@ class UI extends Component {
     }
 
     componentWillUnmount() {
-        clearInterval(this.timer);
     }
 
     advanceNode() {
