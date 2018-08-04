@@ -5,6 +5,46 @@ const { List, ListItem } = require('ink-checkbox-list');
 const QuickSearch = require('ink-quicksearch');
 const ConfirmInput = require('ink-confirm-input');
 
+
+class TextArea extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            buffer: [],
+            value: '',
+        }
+    }
+
+    render() {
+        const prevLines = this.state.buffer.map((d, i) => <div key={i}>{this.props.prefix || ''}{d}</div>)
+        return <span>
+            <span>
+                {prevLines}
+            </span>
+            <span>
+                <span>{this.props.prefix || ''}</span>
+                <TextInput
+                    value={this.state.value}
+                    onChange={value => this.setState({value})}
+                    onSubmit={value => this.onNewLine(value)}
+                />
+            </span>
+        </span>
+    }
+
+    onNewLine(value) {
+        if (value === '') {
+            this.props.onSubmit(this.state.buffer)
+        } else {
+            this.setState({
+                value: '',
+                buffer: [...this.state.buffer, this.state.value]
+            })
+        }
+    }
+}
+
+
 class Name extends Component {
     constructor(props) {
         super(props);
@@ -19,26 +59,22 @@ class Name extends Component {
             <TextInput
                 value={this.state.value}
                 onChange={value => this.setState({value})}
-                onSubmit={value => this.onSubmit(value)}
+                onSubmit={value => this.props.onSubmit(value)}
             />
             <span>.officeroo.io</span>
         </span>
-    }
-
-    onSubmit(value) {
-        this.props.onSubmit(value)
     }
 }
 
 class Offices extends Component {
     render() {
-        return <div></div>
+        return <span>
+            <div>Enter offices one per line. ENTER for new line. DOUBLE ENTER to submit</div>
+            <TextArea
+                onSubmit={list => this.props.onSubmit(list)}
+            />
+        </span>
     }
-
-    componentDidMount() {
-        this.props.onSubmit();
-    }
-
 }
 
 class Activities extends Component {
@@ -68,7 +104,16 @@ class Activities extends Component {
 
 class AllowedEmailDomains extends Component {
     render() {
-        return <div></div>
+        return <span>
+            <div>Enter allowed emails one per line. ENTER for new line. DOUBLE ENTER to submit</div>
+            <div>Leave blank to allow everything</div>
+            <span>
+                <TextArea
+                    prefix="example@"
+                    onSubmit={list => this.props.onSubmit(list)}
+                />
+            </span>
+        </span>
     }
 
 }
@@ -98,7 +143,7 @@ class Result extends Component {
                 {JSON.stringify(this.props.value, null, 2)}
             </div>
             <span>
-                Press ENTER if Happy
+                Press ENTER if happy
             </span>
             <span>
                 <ConfirmInput
@@ -112,81 +157,53 @@ class Result extends Component {
 
 
 class UI extends Component {
-    constructor() {
-        super();
-
-        this.state = {
-            node: 5
-        };
+    constructor(props) {
+        super(props);
+        this.state = { node: 0 };
         this.json = {}
     }
 
     render() {
         switch (this.state.node) {
-            case 0: {
-                return <Name
-                    onSubmit={value => {
-                        this.json.name = value;
-                        this.advanceNode();
-                    }}
-                />
-            }
-            case 1: {
-                return <Offices
-                    onSubmit={value => {
-                        this.json;
-                        this.advanceNode();
-                    }}
-                />
-            }
-            case 2: {
-                return <Activities
-                    onSubmit={activityList => {
-                        this.json.activities = activityList;
-                        this.advanceNode();
-                    }}
-                />
-            }
-            case 3: {
-                return <AllowedEmailDomains
-                    onSubmit={value => {
-                        this.json;
-                        this.advanceNode();
-                    }}
-                />
-            }
-            case 4: {
-                return <HasLogo
-                    onSubmit={value => {
-                        this.json.has_logo = value;
-                        this.advanceNode();
-                    }}
-                />
-            }
-            case 5: {
-                return <Result
-                    value={this.json}
-                    onSubmit={value => {
-                        this.advanceNode();
-                    }}
-                />
-            }
-            default: {
-                process.exit(0)
-            }
+            case 0: return <Name onSubmit={value => this.saveAndContinue('name', value)} />
+            case 1: return <Offices onSubmit={value => this.saveAndContinue('offices', value)} />
+            case 2: return <Activities onSubmit={value => this.saveAndContinue('enabled_activities', value)} />
+            case 3: return <AllowedEmailDomains onSubmit={value => this.saveAndContinue('allowed_email_domains', value)} />
+            case 4: return <HasLogo onSubmit={value => this.saveAndContinue('has_logo', value)} />
+            case 5: return <Result value={this.finish(this.json)} onSubmit={() => this.advanceNode()} />
+            default: process.exit(0)
         }
-    }
-
-    componentDidMount() {
-    }
-
-    componentWillUnmount() {
     }
 
     advanceNode() {
         let {node} = this.state;
         node += 1;
         this.setState({node});
+    }
+
+    saveAndContinue(key, value) {
+        this.json[key] = value;
+        this.advanceNode();
+    }
+
+    finish(data) {
+        const ret = {
+            offices: {},
+            enabled_activities: {},
+            allowed_email_domains: {},
+            has_logo: data.has_logo,
+            superuser: data.superuser,
+        }
+
+        data.offices.forEach(key => ret.offices[key] = {})
+        data.enabled_activities.forEach(key => ret.enabled_activities[key] = {})
+        data.allowed_email_domains.forEach(key => ret.allowed_email_domains[key] = {})
+
+        return {
+            apps: {
+                [data.name]: ret,
+            }
+        }
     }
 }
 
