@@ -191,7 +191,7 @@ class UI extends Component {
             case 2: return <Activities onSubmit={value => this.saveAndContinue('enabled_activities', value)} />
             case 3: return <AllowedEmailDomains onSubmit={value => this.saveAndContinue('allowed_email_domains', value)} />
             case 4: return <HasLogo onSubmit={value => this.saveAndContinue('has_logo', value)} />
-            case 5: return <Result value={this.finish(this.json)} onSubmit={(value) => this.writeAndExit(value)} />
+            case 5: return <Result value={this.finish(this.json)} onSubmit={(value) => this.writeAndExit(value, this.props.outputFolder)} />
             default: return <span></span>
         }
     }
@@ -230,11 +230,11 @@ class UI extends Component {
         }
     }
 
-    writeAndExit(value) {
+    writeAndExit(value, folder) {
         this.advanceNode();
 
         const appName = Object.keys(value.apps)[0]
-        const dir = path.join(__dirname, '..', 'output')
+        const dir = path.join(process.cwd(), folder)
         const file = `${appName}.json`
         const location = `${dir}/${file}`
 
