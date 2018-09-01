@@ -243,7 +243,7 @@ class UI extends Component {
         if (!fs.existsSync(dir)){
             fs.mkdirSync(dir);
         }
-        fs.writeFile(location, JSON.stringify(value, null, 2), function(err) {
+        fs.writeFile(location, JSON.stringify(value, null, 4), function(err) {
             if(err) {
                 return console.log(err);
             }
